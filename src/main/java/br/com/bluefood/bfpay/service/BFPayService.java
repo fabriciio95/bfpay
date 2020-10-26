@@ -12,17 +12,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.bluefood.bfpay.domain.Cartao;
 import br.com.bluefood.bfpay.domain.PaymentResponse;
+import br.com.bluefood.bfpay.enums.StatusPagamento;
 
 @RestController
 public class BFPayService {
+	
+	private static final String AUTH_TOKEN = "r2d2";
 
 	@PostMapping(path = "/pay", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PaymentResponse> pagar(
 			@RequestHeader("Token") String token,
 			@Valid @RequestBody Cartao cartao,
-			Errors erros) {
+			Errors errors) {
 		
-		return null;
+		if(!AUTH_TOKEN.equals(token)) {
+			return ResponseEntity.badRequest().body(new PaymentResponse("Token inválido!"));
+		}
+		
+		if(errors.hasErrors()) {
+			return ResponseEntity.ok(new PaymentResponse(StatusPagamento.CartaoInvalido));
+		}
+		
+		String numCartao = cartao.getNumCartao();
+		
+		StatusPagamento status = numCartao.startsWith("1111") ? StatusPagamento.Autorizado : StatusPagamento.NaoAutorizado;
+		
+		return ResponseEntity.ok(new PaymentResponse(status));
 		
 	}
 }
