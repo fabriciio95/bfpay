@@ -35,8 +35,14 @@ public class BFPayService {
 		
 		String numCartao = cartao.getNumCartao();
 		
-		StatusPagamento status = numCartao.startsWith("1111") ? StatusPagamento.Autorizado : StatusPagamento.NaoAutorizado;
+		StatusPagamento status;
 		
+		if(numCartao.startsWith("0000") || numCartao.startsWith("1111") || numCartao.startsWith("2222") || numCartao.startsWith("3333")) {
+			status = StatusPagamento.Autorizado;
+		} else {
+			status = StatusPagamento.NaoAutorizado;
+		}
+	
 		return ResponseEntity.ok(new PaymentResponse(status));
 		
 	}
